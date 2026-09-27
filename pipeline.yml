@@ -1,0 +1,459 @@
+name: Tourism Package Prediction MLOps Pipeline
+
+# ============================================================
+# Trigger the pipeline
+# ============================================================
+
+on:
+
+  # Run whenever code is pushed to main
+  push:
+    branches:
+      - main
+
+  # Run when a Pull Request is created/updated
+  pull_request:
+    branches:
+      - main
+
+  # Allow manual execution from GitHub Actions
+  workflow_dispatch:
+
+
+# ============================================================
+# Permissions
+# ============================================================
+
+permissions:
+  contents: write
+
+
+# ============================================================
+# Job 1: Validate Dataset
+# ============================================================
+
+jobs:
+
+  validate-data:
+
+    name: Validate Dataset
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Setup Python
+      # ------------------------------------------------------
+
+      - name: Setup Python
+
+        uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.11"
+
+          cache: pip
+
+
+      # ------------------------------------------------------
+      # Install dependencies
+      # ------------------------------------------------------
+
+      - name: Install dependencies
+
+        run: |
+
+          python -m pip install --upgrade pip
+
+          pip install -r requirements.txt
+
+
+      # ------------------------------------------------------
+      # Validate dataset
+      # ------------------------------------------------------
+
+      - name: Validate dataset
+
+        run: |
+
+          python src/01_validate_data.py
+
+
+  # ==========================================================
+  # Job 2: Prepare Data
+  # ==========================================================
+
+  prepare-data:
+
+    name: Prepare Training and Testing Data
+
+    needs: validate-data
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Setup Python
+      # ------------------------------------------------------
+
+      - name: Setup Python
+
+        uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.11"
+
+          cache: pip
+
+
+      # ------------------------------------------------------
+      # Install dependencies
+      # ------------------------------------------------------
+
+      - name: Install dependencies
+
+        run: |
+
+          python -m pip install --upgrade pip
+
+          pip install -r requirements.txt
+
+
+      # ------------------------------------------------------
+      # Prepare data
+      # ------------------------------------------------------
+
+      - name: Prepare dataset
+
+        run: |
+
+          python src/02_prepare_data.py
+
+
+      # ------------------------------------------------------
+      # Upload train/test data as workflow artifact
+      # ------------------------------------------------------
+
+      - name: Upload training and testing data
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: tourism-train-test-data
+
+          path: |
+
+            artifacts/train.csv
+
+            artifacts/test.csv
+
+          retention-days: 7
+
+
+  # ==========================================================
+  # Job 3: Train Models
+  # ==========================================================
+
+  train-models:
+
+    name: Train and Select Best Model
+
+    needs: prepare-data
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Setup Python
+      # ------------------------------------------------------
+
+      - name: Setup Python
+
+        uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.11"
+
+          cache: pip
+
+
+      # ------------------------------------------------------
+      # Install dependencies
+      # ------------------------------------------------------
+
+      - name: Install dependencies
+
+        run: |
+
+          python -m pip install --upgrade pip
+
+          pip install -r requirements.txt
+
+
+      # ------------------------------------------------------
+      # Download train/test artifact
+      # ------------------------------------------------------
+
+      - name: Download prepared data
+
+        uses: actions/download-artifact@v4
+
+        with:
+
+          name: tourism-train-test-data
+
+          path: artifacts
+
+
+      # ------------------------------------------------------
+      # Train models
+      # ------------------------------------------------------
+
+      - name: Train machine learning models
+
+        run: |
+
+          python src/03_train_models.py
+
+
+      # ------------------------------------------------------
+      # Upload trained models
+      # ------------------------------------------------------
+
+      - name: Upload trained models
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: tourism-trained-models
+
+          path: |
+
+            models/
+
+            artifacts/model_results.csv
+
+          retention-days: 30
+
+
+  # ==========================================================
+  # Job 4: Evaluate Models
+  # ==========================================================
+
+  evaluate-models:
+
+    name: Evaluate Models
+
+    needs: train-models
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Setup Python
+      # ------------------------------------------------------
+
+      - name: Setup Python
+
+        uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.11"
+
+          cache: pip
+
+
+      # ------------------------------------------------------
+      # Install dependencies
+      # ------------------------------------------------------
+
+      - name: Install dependencies
+
+        run: |
+
+          python -m pip install --upgrade pip
+
+          pip install -r requirements.txt
+
+
+      # ------------------------------------------------------
+      # Download train/test data
+      # ------------------------------------------------------
+
+      - name: Download prepared data
+
+        uses: actions/download-artifact@v4
+
+        with:
+
+          name: tourism-train-test-data
+
+          path: artifacts
+
+
+      # ------------------------------------------------------
+      # Download trained models
+      # ------------------------------------------------------
+
+      - name: Download trained models
+
+        uses: actions/download-artifact@v4
+
+        with:
+
+          name: tourism-trained-models
+
+          path: .
+
+
+      # ------------------------------------------------------
+      # Evaluate models
+      # ------------------------------------------------------
+
+      - name: Evaluate machine learning models
+
+        run: |
+
+          python src/04_evaluate_models.py
+
+
+  # ==========================================================
+  # Job 5: Commit Model to GitHub
+  # ==========================================================
+
+  commit-model:
+
+    name: Commit Best Model to Repository
+
+    needs: evaluate-models
+
+    # Only commit when workflow is running from main.
+    # Do not push generated files from pull requests.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+        with:
+
+          fetch-depth: 0
+
+
+      # ------------------------------------------------------
+      # Download trained models
+      # ------------------------------------------------------
+
+      - name: Download trained models
+
+        uses: actions/download-artifact@v4
+
+        with:
+
+          name: tourism-trained-models
+
+          path: .
+
+
+      # ------------------------------------------------------
+      # Configure Git
+      # ------------------------------------------------------
+
+      - name: Configure Git
+
+        run: |
+
+          git config user.name "github-actions[bot]"
+
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+      # ------------------------------------------------------
+      # Add generated model files
+      # ------------------------------------------------------
+
+      - name: Add model files
+
+        run: |
+
+          git add models/
+
+          git add artifacts/model_results.csv
+
+
+      # ------------------------------------------------------
+      # Commit changes
+      # ------------------------------------------------------
+
+      - name: Commit model updates
+
+        run: |
+
+          git diff --cached --quiet || \
+          git commit -m "chore: update trained tourism model"
+
+
+      # ------------------------------------------------------
+      # Push changes to main
+      # ------------------------------------------------------
+
+      - name: Push model updates to main
+
+        run: |
+
+          git push origin HEAD:main
