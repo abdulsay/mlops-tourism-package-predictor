@@ -24,11 +24,11 @@ from sklearn.metrics import classification_report
 # ---------------------------------------------------------
 
 TEST_FILE = Path(
-    "tourism_project/artifacts/test.csv"
+    "artifacts/test.csv"
 )
 
 MODEL_DIRECTORY = Path(
-    "tourism_project/models/"
+    "models/"
 )
 
 TARGET_COLUMN = "ProdTaken"
