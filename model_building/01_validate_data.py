@@ -17,7 +17,7 @@ import pandas as pd
 # Configuration
 # ---------------------------------------------------------
 
-DATA_PATH = Path("tourism_project/data/tourism.csv")
+DATA_PATH = Path("data/tourism.csv")
 
 EXPECTED_COLUMNS = [
     "Unnamed: 0",
