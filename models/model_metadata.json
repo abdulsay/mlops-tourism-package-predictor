@@ -1,0 +1,32 @@
+{
+    "best_model": "Bagging",
+    "selection_metric": "Cross-validation F1",
+    "best_cv_f1_score": 0.7205892247714757,
+    "best_parameters": {
+        "model__max_features": 1.0,
+        "model__max_samples": 1.0,
+        "model__n_estimators": 200
+    },
+    "numerical_columns": [
+        "Age",
+        "CityTier",
+        "DurationOfPitch",
+        "NumberOfPersonVisiting",
+        "NumberOfFollowups",
+        "PreferredPropertyStar",
+        "NumberOfTrips",
+        "Passport",
+        "PitchSatisfactionScore",
+        "OwnCar",
+        "NumberOfChildrenVisiting",
+        "MonthlyIncome"
+    ],
+    "categorical_columns": [
+        "TypeofContact",
+        "Occupation",
+        "Gender",
+        "ProductPitched",
+        "MaritalStatus",
+        "Designation"
+    ]
+}
