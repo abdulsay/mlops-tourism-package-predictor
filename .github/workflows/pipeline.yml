@@ -87,7 +87,7 @@ jobs:
 
         run: |
 
-          python src/01_validate_data.py
+          python 01_validate_data.py
 
 
   # ==========================================================
@@ -149,7 +149,7 @@ jobs:
 
         run: |
 
-          python src/02_prepare_data.py
+          python 02_prepare_data.py
 
 
       # ------------------------------------------------------
@@ -247,7 +247,7 @@ jobs:
 
         run: |
 
-          python src/03_train_models.py
+          python 03_train_models.py
 
 
       # ------------------------------------------------------
@@ -360,7 +360,7 @@ jobs:
 
         run: |
 
-          python src/04_evaluate_models.py
+          python 04_evaluate_models.py
 
 
   # ==========================================================
