@@ -19,9 +19,9 @@ from sklearn.model_selection import train_test_split
 # Configuration
 # ---------------------------------------------------------
 
-SOURCE_FILE = Path("tourism_project/data/tourism.csv")
+SOURCE_FILE = Path("data/tourism.csv")
 
-OUTPUT_DIRECTORY = Path("tourism_project/artifacts")
+OUTPUT_DIRECTORY = Path("artifacts")
 
 TRAIN_FILE = OUTPUT_DIRECTORY / "train.csv"
 
