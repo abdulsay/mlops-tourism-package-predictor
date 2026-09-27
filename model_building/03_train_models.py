@@ -61,15 +61,15 @@ from sklearn.model_selection import (
 # ---------------------------------------------------------
 
 TRAIN_FILE = Path(
-    "tourism_project/artifacts/train.csv"
+    "artifacts/train.csv"
 )
 
 MODEL_DIRECTORY = Path(
-    "tourism_project/models/"
+    "models/"
 )
 
 RESULTS_FILE = Path(
-    "tourism_project/artifacts/model_results.csv"
+    "artifacts/model_results.csv"
 )
 
 TARGET_COLUMN = "ProdTaken"
