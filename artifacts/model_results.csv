@@ -1,0 +1,5 @@
+model,cv_f1_score,best_parameters
+Bagging,0.7205892247714757,"{""model__max_features"": 1.0, ""model__max_samples"": 1.0, ""model__n_estimators"": 200}"
+XGBoost,0.7098700904336935,"{""model__learning_rate"": 0.1, ""model__max_depth"": 7, ""model__n_estimators"": 200, ""model__subsample"": 0.8}"
+RandomForest,0.6379358882426367,"{""model__max_depth"": null, ""model__min_samples_leaf"": 1, ""model__min_samples_split"": 2, ""model__n_estimators"": 200}"
+DecisionTree,0.6316070875178363,"{""model__max_depth"": null, ""model__min_samples_leaf"": 1, ""model__min_samples_split"": 2}"
