@@ -20,7 +20,7 @@ import pandas as pd
 # =========================================================
 
 MODEL_FILE = Path(
-    "tourism_project/models/best_model.pkl"
+    "models/best_model.pkl"
 )
 
 
